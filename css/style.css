@@ -1,0 +1,295 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --pink:   #F29199;
+  --blush:  #F2BDC1;
+  --mint:   #CEF2E8;
+  --peach:  #F2D7D0;
+  --dark:   #0D0D0D;
+  --gray:   #6b7280;
+  --light:  #f3f4f6;
+  --border: #e5e7eb;
+  --radius: 12px;
+  --gap:    clamp(5px, 1.4vw, 11px);
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #f9fafb;
+  color: var(--dark);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* ── Screens ─────────────────────────────── */
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+}
+.screen.hidden { display: none; }
+
+/* ── Type ────────────────────────────────── */
+h1 {
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+h1 .accent { color: var(--pink); }
+
+.subtitle {
+  color: var(--gray);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  max-width: 300px;
+}
+
+.tip {
+  font-size: 0.78rem;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.tip-label {
+  background: var(--mint);
+  color: var(--dark);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+/* ── Badge ───────────────────────────────── */
+.badge {
+  display: inline-block;
+  background: var(--peach);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+}
+
+/* ── Buttons ─────────────────────────────── */
+.btn {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+  letter-spacing: 0.01em;
+}
+.btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+.btn:active { transform: translateY(0); box-shadow: none; }
+
+.btn-primary   { background: var(--dark); color: white; }
+.btn-secondary { background: white; color: var(--dark); border: 1.5px solid var(--border); }
+.btn-kakao     { background: #FEE500; color: #3C1E1E; }
+
+.btn-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ── HUD ─────────────────────────────────── */
+.hud {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+}
+.hud-box {
+  flex: 1;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.5rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.hud-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--gray);
+}
+.hud-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+}
+#hud-timer.danger { color: var(--pink); animation: pulse 0.5s ease infinite alternate; }
+
+@keyframes pulse { to { transform: scale(1.18); } }
+
+/* ── Progress bar ────────────────────────── */
+.progress-track {
+  width: 100%;
+  height: 5px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+#progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pink), var(--blush));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ── Grid ────────────────────────────────── */
+.grid-wrap {
+  position: relative;
+  width: 100%;
+}
+#grid {
+  display: grid;
+  gap: var(--gap);
+  width: 100%;
+  aspect-ratio: 1;
+}
+.tile {
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  width: 100%;
+  aspect-ratio: 1;
+  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+.tile:hover  { transform: scale(0.94); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
+.tile:active { transform: scale(0.88); }
+
+/* ── Feedback overlay ────────────────────── */
+.feedback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  font-weight: 900;
+  border-radius: var(--radius);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.feedback.show    { opacity: 1; }
+.feedback.correct { background: rgba(206,242,232,0.8); color: #059669; }
+.feedback.wrong   { background: rgba(242,145,153,0.45); color: #dc2626; }
+
+/* ── Result card ─────────────────────────── */
+.result-card {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.92rem;
+  color: var(--gray);
+}
+.result-row .val {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--dark);
+}
+.result-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Save section ────────────────────────── */
+.save-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+  width: 100%;
+}
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+.input-row input {
+  flex: 1;
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-row input:focus { border-color: var(--pink); }
+.saved-msg {
+  font-size: 0.82rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+/* ── Rank table ──────────────────────────── */
+.rank-table-wrap {
+  width: 100%;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+th {
+  background: var(--light);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+}
+.rank-cell {
+  padding: 0.6rem 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.rank-num   { font-weight: 700; }
+.rank-score { font-weight: 800; color: var(--dark); }
+.rank-level { color: var(--gray); font-size: 0.8rem; }
+
+/* ── Responsive ──────────────────────────── */
+@media (max-width: 360px) {
+  .hud-value { font-size: 1.1rem; }
+  .btn { padding: 0.65rem 1.4rem; font-size: 0.88rem; }
+}
