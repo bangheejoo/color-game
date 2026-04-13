@@ -1,7 +1,7 @@
 // ── 카카오 앱 키 (https://developers.kakao.com 에서 발급 후 교체) ──
 const KAKAO_APP_KEY = 'YOUR_KAKAO_APP_KEY';
 const MAX_LEVEL = 30;
-const TIME_PER_LEVEL = 10;
+const TIME_PER_LEVEL = 5;
 
 // ── 로컬스토리지 순위 ───────────────────────────────────────────────
 const Rank = {
@@ -52,12 +52,12 @@ function kakaoShare(score, level) {
   if (window.Kakao && Kakao.isInitialized()) {
     Kakao.Share.sendDefault({
       objectType: 'text',
-      text: `🎨 컬러게임 ${level}단계 완료!\n최종 점수: ${score.toLocaleString()}점\n색깔 차이를 얼마나 잘 구별할 수 있을까요?`,
+      text: `🎨 Color Game ${level}레벨 완료!\n최종 점수: ${score.toLocaleString()}점\n색깔 차이를 얼마나 잘 구별할 수 있을까요?`,
       link: { mobileWebUrl: pageUrl, webUrl: pageUrl },
     });
   } else {
     // fallback: 텍스트 복사
-    const text = `🎨 컬러게임 ${level}단계 완료! 점수: ${score.toLocaleString()}점\n${pageUrl}`;
+    const text = `🎨 Color Game ${level}레벨 완료! 점수: ${score.toLocaleString()}점\n${pageUrl}`;
     navigator.clipboard?.writeText(text).then(() => alert('링크가 클립보드에 복사되었습니다!'));
   }
 }
@@ -73,9 +73,9 @@ const Game = (() => {
     return 6;
   }
 
-  // 레벨이 높을수록 색 차이가 작아짐 (22 → 5)
+  // 레벨이 높을수록 색 차이가 작아짐 (20 → 5)
   function getDelta(level) {
-    return Math.max(5, Math.round(22 - (level - 1) * (17 / (MAX_LEVEL - 1))));
+    return Math.max(5, Math.round(20 - (level - 1) * (17 / (MAX_LEVEL - 1))));
   }
 
   function randomBaseColor() {
@@ -175,10 +175,10 @@ const Game = (() => {
     const screen = document.getElementById('result-screen');
     screen.classList.remove('hidden');
 
-    document.getElementById('result-title').textContent = completed ? '🎉 클리어!' : '⏰ 시간 초과';
+    document.getElementById('result-title').textContent = completed ? '🎉 CLEAR!' : '⏰ TIME OVER';
     document.getElementById('result-desc').textContent = completed
-      ? `${MAX_LEVEL}단계를 모두 완료했습니다!`
-      : `${state.level}단계에서 시간이 초과되었습니다.`;
+      ? `${MAX_LEVEL}레벨을 모두 완료했습니다!`
+      : `${state.level}레벨에서 멈췄어요! 다시 도전해볼까요?`;
     document.getElementById('result-score').textContent = state.score.toLocaleString();
     document.getElementById('result-level').textContent = state.level;
 
@@ -216,10 +216,18 @@ const Game = (() => {
       document.getElementById('start-screen').classList.remove('hidden');
     });
     document.getElementById('btn-save-score').addEventListener('click', () => {
-      const nickname = document.getElementById('nickname-input').value.trim() || '익명';
+      const nickname = document.getElementById('nickname-input').value.trim();
+      if (!nickname) {
+        document.getElementById('nickname-input').focus();
+        return;
+      }
       Rank.save(nickname, state.score, state.level);
+      const btn = document.getElementById('btn-save-score');
+      btn.disabled = true;
+      btn.textContent = '저장됨';
+      document.getElementById('nickname-input').disabled = true;
       document.getElementById('result-saved-msg').classList.remove('hidden');
-      document.getElementById('save-section').classList.add('hidden');
+      document.getElementById('result-save-guide').classList.add('hidden');
     });
 
     initKakao();

@@ -19,8 +19,8 @@
   <section id="start-screen" class="screen">
     <span class="badge">Color Game</span>
     <h1>다른 색을<br /><span class="accent">찾아라</span></h1>
-    <p class="subtitle">다른 색의 타일 하나를 찾아보세요.</p>
-    <p class="tip"><span class="tip-label">Tip</span> 총 30단계 · 단계마다 10초 · 빠를수록 고득점</p>
+    <p class="subtitle">다른 색의 타일 하나를 찾아보세요!</p>
+    <p class="tip"><span class="tip-label">Tip</span>레벨마다 제한시간 5초, 과연 30 레벨까지 갈 수 있을까요?</p>
     <div class="btn-row">
       <button id="btn-start" class="btn btn-primary">게임 시작</button>
       <button id="btn-to-rank-from-start" class="btn btn-secondary">순위표</button>
@@ -31,7 +31,7 @@
   <section id="game-screen" class="screen hidden">
     <div class="hud">
       <div class="hud-box">
-        <span class="hud-label">단계</span>
+        <span class="hud-label">레벨</span>
         <span id="hud-level" class="hud-value">1 / 30</span>
       </div>
       <div class="hud-box">
@@ -40,7 +40,7 @@
       </div>
       <div class="hud-box">
         <span class="hud-label">시간</span>
-        <span id="hud-timer" class="hud-value">10</span>
+        <span id="hud-timer" class="hud-value">5</span>
       </div>
     </div>
 
@@ -56,8 +56,8 @@
 
   <!-- ③ 결과 화면 (타임오버 / 클리어 공통) -->
   <section id="result-screen" class="screen hidden">
-    <span class="badge">결과</span>
-    <h1 id="result-title">⏰ 시간 초과</h1>
+    <span class="badge">Result</span>
+    <h1 id="result-title">⏰ TIME OVER</h1>
     <p id="result-desc" class="subtitle"></p>
 
     <div class="result-card">
@@ -67,23 +67,23 @@
       </div>
       <hr class="result-divider" />
       <div class="result-row">
-        <span>도달 단계</span>
+        <span>최종 레벨</span>
         <span id="result-level" class="val">1</span>
       </div>
     </div>
 
-    <!-- 30단계 완료 시에만 표시 -->
+    <!-- 30레벨 완료 시에만 표시 -->
     <div id="save-section" class="save-section hidden">
-      <p style="font-size:0.82rem;color:#6b7280;">닉네임을 입력하고 기록을 저장하세요</p>
+      <p id="result-save-guide" style="font-size:0.82rem;color:#6b7280;">닉네임을 입력하고 기록을 저장해 보세요</p>
+      <p id="result-saved-msg" class="saved-msg hidden">✓ 기록이 저장되었습니다!</p>
       <div class="input-row">
-        <input id="nickname-input" type="text" maxlength="10" placeholder="닉네임 (최대 10자)" />
+        <input id="nickname-input" type="text" maxlength="6" placeholder="닉네임 (최대 6자)" />
         <button id="btn-save-score" class="btn btn-primary">저장</button>
       </div>
     </div>
-    <p id="result-saved-msg" class="saved-msg hidden">✓ 기록이 저장되었습니다!</p>
 
     <div class="btn-row">
-      <button id="btn-restart" class="btn btn-primary">다시 하기</button>
+      <button id="btn-restart" class="btn btn-primary">다시하기</button>
       <button id="btn-kakao" class="btn btn-kakao">카카오톡 공유</button>
       <button id="btn-to-rank-from-result" class="btn btn-secondary">순위표</button>
     </div>
@@ -100,7 +100,7 @@
             <th>#</th>
             <th>닉네임</th>
             <th>점수</th>
-            <th>단계</th>
+            <th>레벨</th>
           </tr>
         </thead>
         <tbody id="rank-body"></tbody>
