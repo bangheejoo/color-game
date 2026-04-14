@@ -1,43 +1,79 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 // ── 카카오 앱 키 (https://developers.kakao.com 에서 발급 후 교체) ──
 const KAKAO_APP_KEY = 'YOUR_KAKAO_APP_KEY';
 const MAX_LEVEL = 30;
 const TIME_PER_LEVEL = 5;
 
-// ── 로컬스토리지 순위 ───────────────────────────────────────────────
+// ── Firebase 초기화 ─────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBXlxdLJ4bdsVBSaxD5F9RIxudht1EPKhU",
+  authDomain: "colorgame-a01e4.firebaseapp.com",
+  projectId: "colorgame-a01e4",
+  storageBucket: "colorgame-a01e4.firebasestorage.app",
+  messagingSenderId: "173475441094",
+  appId: "1:173475441094:web:69d940bd79d60edcfaeac7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ── Firestore 순위 ──────────────────────────────────────────────────
 const Rank = {
-  KEY: 'colorgame_ranks',
+  COLLECTION: 'rankings',
 
-  load() {
-    try { return JSON.parse(localStorage.getItem(this.KEY)) || []; }
-    catch { return []; }
+  async save(nickname, score, levelReached) {
+    await addDoc(collection(db, this.COLLECTION), {
+      nickname: nickname.trim() || '익명',
+      score,
+      levelReached,
+      date: serverTimestamp(),
+    });
   },
 
-  save(nickname, score, levelReached) {
-    const ranks = this.load();
-    ranks.push({ nickname: nickname.trim() || '익명', score, levelReached, date: Date.now() });
-    ranks.sort((a, b) => b.score - a.score);
-    localStorage.setItem(this.KEY, JSON.stringify(ranks.slice(0, 20)));
-  },
-
-  render() {
-    const ranks = this.load();
+  async render() {
     const tbody = document.getElementById('rank-body');
-    if (!ranks.length) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:1.5rem;">아직 기록이 없습니다</td></tr>';
-      return;
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:1.5rem;">불러오는 중…</td></tr>';
+    try {
+      const q = query(
+        collection(db, this.COLLECTION),
+        orderBy('score', 'desc'),
+        limit(10)
+      );
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:1.5rem;">아직 기록이 없습니다</td></tr>';
+        return;
+      }
+      tbody.innerHTML = snapshot.docs.map((doc, i) => {
+        const r = doc.data();
+        return `
+          <tr>
+            <td class="rank-cell rank-num">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
+            <td class="rank-cell">${escapeHtml(r.nickname)}</td>
+            <td class="rank-cell rank-score">${r.score.toLocaleString()}</td>
+            <td class="rank-cell rank-level">Lv.${r.levelReached}</td>
+          </tr>`;
+      }).join('');
+    } catch (e) {
+      console.error('순위 로드 실패:', e);
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#f87171;padding:1.5rem;">순위를 불러올 수 없습니다</td></tr>';
     }
-    tbody.innerHTML = ranks.slice(0, 10).map((r, i) => `
-      <tr>
-        <td class="rank-cell rank-num">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
-        <td class="rank-cell">${escapeHtml(r.nickname)}</td>
-        <td class="rank-cell rank-score">${r.score.toLocaleString()}</td>
-        <td class="rank-cell rank-level">Lv.${r.levelReached}</td>
-      </tr>`).join('');
   },
 };
 
 function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 // ── 카카오 초기화 ───────────────────────────────────────────────────
@@ -56,7 +92,6 @@ function kakaoShare(score, level) {
       link: { mobileWebUrl: pageUrl, webUrl: pageUrl },
     });
   } else {
-    // fallback: 텍스트 복사
     const text = `🎨 Color Game ${level}레벨 완료! 점수: ${score.toLocaleString()}점\n${pageUrl}`;
     navigator.clipboard?.writeText(text).then(() => alert('링크가 클립보드에 복사되었습니다!'));
   }
@@ -151,11 +186,10 @@ const Game = (() => {
   function updateHUD() {
     document.getElementById('hud-level').textContent = `${state.level} / ${MAX_LEVEL}`;
     document.getElementById('hud-score').textContent = state.score.toLocaleString();
-    document.getElementById('hud-timer').textContent = state.timeLeft;
     const timerEl = document.getElementById('hud-timer');
+    timerEl.textContent = state.timeLeft;
     timerEl.classList.toggle('danger', state.timeLeft <= 3);
 
-    // 진행 바
     const pct = ((state.level - 1) / MAX_LEVEL) * 100;
     document.getElementById('progress-bar').style.width = pct + '%';
   }
@@ -183,10 +217,18 @@ const Game = (() => {
     document.getElementById('result-level').textContent = state.level;
 
     // 완료 시에만 닉네임 저장 UI 표시
-    document.getElementById('save-section').classList.toggle('hidden', !completed);
+    const saveSection = document.getElementById('save-section');
+    saveSection.classList.toggle('hidden', !completed);
     document.getElementById('result-saved-msg').classList.add('hidden');
 
-    // 카카오 공유는 항상
+    // 저장 버튼 초기화 (재시작 후 다시 클리어 시 재사용 가능하도록)
+    const btn = document.getElementById('btn-save-score');
+    btn.disabled = false;
+    btn.textContent = '저장';
+    document.getElementById('nickname-input').disabled = false;
+    document.getElementById('nickname-input').value = '';
+    document.getElementById('result-save-guide').classList.remove('hidden');
+
     document.getElementById('btn-kakao').onclick = () => kakaoShare(state.score, state.level);
   }
 
@@ -206,6 +248,13 @@ const Game = (() => {
     startTimer();
   }
 
+  async function showRank() {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.add('hidden');
+    document.getElementById('rank-screen').classList.remove('hidden');
+    await Rank.render();
+  }
+
   function init() {
     document.getElementById('btn-start').addEventListener('click', startGame);
     document.getElementById('btn-restart').addEventListener('click', startGame);
@@ -215,29 +264,30 @@ const Game = (() => {
       document.getElementById('rank-screen').classList.add('hidden');
       document.getElementById('start-screen').classList.remove('hidden');
     });
-    document.getElementById('btn-save-score').addEventListener('click', () => {
+    document.getElementById('btn-save-score').addEventListener('click', async () => {
       const nickname = document.getElementById('nickname-input').value.trim();
       if (!nickname) {
         document.getElementById('nickname-input').focus();
         return;
       }
-      Rank.save(nickname, state.score, state.level);
       const btn = document.getElementById('btn-save-score');
       btn.disabled = true;
-      btn.textContent = '저장됨';
-      document.getElementById('nickname-input').disabled = true;
-      document.getElementById('result-saved-msg').classList.remove('hidden');
-      document.getElementById('result-save-guide').classList.add('hidden');
+      btn.textContent = '저장 중…';
+      try {
+        await Rank.save(nickname, state.score, state.level);
+        btn.textContent = '저장됨';
+        document.getElementById('nickname-input').disabled = true;
+        document.getElementById('result-saved-msg').classList.remove('hidden');
+        document.getElementById('result-save-guide').classList.add('hidden');
+      } catch (e) {
+        console.error('저장 실패:', e);
+        btn.disabled = false;
+        btn.textContent = '저장';
+        alert('저장 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      }
     });
 
     initKakao();
-  }
-
-  function showRank() {
-    document.getElementById('start-screen').classList.add('hidden');
-    document.getElementById('result-screen').classList.add('hidden');
-    document.getElementById('rank-screen').classList.remove('hidden');
-    Rank.render();
   }
 
   return { init };
