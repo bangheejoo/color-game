@@ -16,10 +16,44 @@ function toDate(ts: unknown): Date {
 }
 
 export function useLeaderboard() {
+  const [overallRanks, setOverallRanks] = useState<RankEntry[]>([]);
   const [todayRanks, setTodayRanks] = useState<RankEntry[]>([]);
   const [comboRanks, setComboRanks] = useState<RankEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /** 종합 순위 (전체 기간 점수 Top 20) */
+  const fetchOverallRanks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const q = query(
+        collection(db, COLLECTION),
+        orderBy('score', 'desc'),
+        limit(20),
+      );
+      const snap = await getDocs(q);
+      setOverallRanks(
+        snap.docs.map(doc => {
+          const d = doc.data();
+          return {
+            id: doc.id,
+            nickname: d.nickname,
+            score: d.score,
+            levelReached: d.levelReached,
+            maxCombo: d.maxCombo ?? 0,
+            isPerfect: d.isPerfect ?? false,
+            date: toDate(d.date),
+          };
+        }),
+      );
+    } catch (e) {
+      console.error('종합 순위 로드 실패:', e);
+      setError('순위를 불러올 수 없어요요');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   /** 오늘의 순위 (날짜별 점수 Top 20) */
   const fetchTodayRanks = useCallback(async () => {
@@ -53,7 +87,7 @@ export function useLeaderboard() {
       );
     } catch (e) {
       console.error('오늘의 순위 로드 실패:', e);
-      setError('순위를 불러올 수 없습니다.');
+      setError('순위를 불러올 수 없어요');
     } finally {
       setLoading(false);
     }
@@ -87,7 +121,7 @@ export function useLeaderboard() {
       );
     } catch (e) {
       console.error('콤보 순위 로드 실패:', e);
-      setError('순위를 불러올 수 없습니다.');
+      setError('순위를 불러올 수 없어요');
     } finally {
       setLoading(false);
     }
@@ -117,5 +151,5 @@ export function useLeaderboard() {
     }
   }, []);
 
-  return { todayRanks, comboRanks, loading, error, fetchTodayRanks, fetchComboRanks, saveScore };
+  return { overallRanks, todayRanks, comboRanks, loading, error, fetchOverallRanks, fetchTodayRanks, fetchComboRanks, saveScore };
 }

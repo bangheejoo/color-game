@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /rankings/{docId} {
+      // 누구나 읽기 가능 (순위표 조회)
+      allow read: if true;
+
+      // 쓰기: 새 문서 생성만 허용, 수정/삭제 불가
+      allow create: if request.resource.data.keys().hasAll(['nickname', 'score', 'levelReached', 'maxCombo', 'isPerfect', 'date'])
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() >= 1
+        && request.resource.data.nickname.size() <= 6
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.levelReached is int
+        && request.resource.data.levelReached >= 1
+        && request.resource.data.levelReached <= 45
+        && request.resource.data.maxCombo is int
+        && request.resource.data.maxCombo >= 0
+        && request.resource.data.isPerfect is bool;
+
+      allow update, delete: if false;
+    }
+
+    // 그 외 컬렉션은 모두 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

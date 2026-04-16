@@ -45,4 +45,4 @@ export interface RankEntry {
 }
 
 // ── 순위표 탭 ────────────────────────────────────────
-export type LeaderboardTab = 'today' | 'combo';
+export type LeaderboardTab = 'overall' | 'today' | 'combo';

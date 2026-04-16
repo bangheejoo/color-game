@@ -1,17 +1,55 @@
 @import "tailwindcss";
 
+/* ── 폰트 선언 ───────────────────────────────────────── */
+@font-face {
+  font-family: 'Cafe24Ssurround';
+  src: url('./fonts/Cafe24Ssurround-v2.0.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GmarketSans';
+  src: url('./fonts/GmarketSansTTFLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GmarketSans';
+  src: url('./fonts/GmarketSansTTFMedium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GmarketSans';
+  src: url('./fonts/GmarketSansTTFBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── CSS 변수 ────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  --pink:   #F29199;
-  --blush:  #F2BDC1;
-  --mint:   #CEF2E8;
-  --peach:  #F2D7D0;
-  --dark:   #0D0D0D;
+  --pink:        #F29199;
+  --blush:       #F2BDC1;
+  --mint:        #CEF2E8;
+  --peach:       #F2D7D0;
+  --dark:        #0D0D0D;
+  --font-title:  'Cafe24Ssurround', system-ui, sans-serif;
+  --font-body:   'GmarketSans', system-ui, sans-serif;
 }
 
+/* ── 기본 레이아웃 ───────────────────────────────────── */
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
+  font-weight: 500;
   background: #f9fafb;
   color: var(--dark);
   min-height: 100dvh;
@@ -30,7 +68,12 @@ body {
   align-items: center;
 }
 
-/* ── 커스텀 애니메이션 ────────────────────────────── */
+/* ── 타이틀 폰트 적용 ───────────────────────────────── */
+h1 {
+  font-family: var(--font-title);
+}
+
+/* ── 커스텀 애니메이션 ───────────────────────────────── */
 @keyframes pulse-danger {
   to { transform: scale(1.18); }
 }

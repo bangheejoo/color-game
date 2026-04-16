@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 interface ComboDisplayProps {
   combo: number;
-  triggerKey: number; // 변경될 때마다 애니메이션 재실행
+  triggerKey: number;
 }
 
 export default function ComboDisplay({ combo, triggerKey }: ComboDisplayProps) {
@@ -20,15 +20,13 @@ export default function ComboDisplay({ combo, triggerKey }: ComboDisplayProps) {
   return (
     <div
       key={triggerKey}
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 animate-combo-pop"
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 animate-combo-pop w-full text-center px-4"
     >
-      <div className="text-center">
-        <div className="text-5xl font-black text-orange-500 drop-shadow-lg">
-          {combo}x COMBO!
-        </div>
-        {combo >= 5 && (
-          <div className="text-2xl mt-1">🔥</div>
-        )}
+      <div
+        className="font-black text-orange-500 drop-shadow-lg leading-tight"
+        style={{ fontSize: 'clamp(1.5rem, 8vw, 2.8rem)' }}
+      >
+        {combo}x COMBO!{combo >= 5 ? ' 🔥' : ''}
       </div>
     </div>
   );

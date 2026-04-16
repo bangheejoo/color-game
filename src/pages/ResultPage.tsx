@@ -31,7 +31,7 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
   const handleShare = async () => {
     const res = await shareOrCopy(shareText);
     if (res === 'copied') {
-      setShareMsg('클립보드에 복사됐어요!');
+      setShareMsg('링크가 복사됐어요❤️ 친구에게 공유해 보세요!');
       setTimeout(() => setShareMsg(''), 2000);
     }
   };
@@ -71,63 +71,69 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
       {/* 결과 카드 */}
       <div className="w-full bg-white border border-gray-200 rounded-xl px-6 py-5 flex flex-col gap-3">
         <ResultRow label="최종 점수" value={result.score.toLocaleString()} bold />
-        <hr className="border-gray-100" />
+        <hr className="border-gray-300" />
         <ResultRow label="최종 레벨" value={`Lv.${result.level}`} />
-        <ResultRow label="최고 콤보" value={`${result.maxCombo}x 🔥`} />
+        <ResultRow label="최고 콤보" value={`${result.maxCombo}🔥`} />
       </div>
 
-      {/* 닉네임 저장 (클리어 시에만) */}
-      {isCleared && (
-        <div className="flex flex-col gap-2 items-center w-full">
-          {!saved ? (
-            <>
-              <p className="text-xs text-gray-400">닉네임을 입력하고 기록을 저장해 보세요</p>
-              <div className="flex gap-2 w-full">
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="닉네임 (최대 6자)"
-                  value={nickname}
-                  onChange={e => setNickname(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSave()}
-                  className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#F29199] transition-colors"
-                />
-                <button
-                  onClick={handleSave}
-                  disabled={saving || !nickname.trim()}
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-40 transition-colors"
-                  style={{ background: '#0D0D0D' }}
-                >
-                  {saving ? '저장 중…' : '저장'}
-                </button>
-              </div>
-            </>
-          ) : (
-            <p className="text-sm font-semibold text-emerald-600">✓ 기록이 저장되었습니다!</p>
-          )}
-        </div>
-      )}
+      {/* 닉네임 저장 (항상 표시) */}
+      <div className="flex flex-col gap-2 items-center w-full">
+        {!saved ? (
+          <>
+            <p className="text-xs text-gray-400">닉네임을 입력하고 기록을 저장해 보세요</p>
+            <div className="flex gap-2 w-full">
+              <input
+                type="text"
+                maxLength={6}
+                placeholder="닉네임 (최대 6자)"
+                value={nickname}
+                onChange={e => setNickname(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSave()}
+                className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#F29199] transition-colors"
+              />
+              <button
+                onClick={handleSave}
+                disabled={saving || !nickname.trim()}
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-40 transition-colors"
+                style={{ background: '#0D0D0D' }}
+              >
+                {saving ? '저장 중…' : '저장'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-sm font-semibold text-emerald-600">✓ 기록이 저장되었습니다!</p>
+        )}
+      </div>
 
-      {/* 버튼 */}
-      <div className="flex gap-2 flex-wrap justify-center w-full">
-        <button
-          onClick={onRestart}
-          className="px-8 py-3 rounded-xl text-sm font-bold text-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-          style={{ background: '#0D0D0D' }}
-        >
-          다시하기
-        </button>
+      {/* 버튼 — 2행 그리드: 다시하기+순위표 / 공유 풀너비 */}
+      <div className="flex flex-col gap-2 w-full">
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={onRestart}
+            className="py-3 rounded-xl text-sm font-bold text-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+            style={{ background: '#0D0D0D' }}
+          >
+            다시하기
+          </button>
+          <button
+            onClick={onLeaderboard}
+            className="py-3 rounded-xl text-sm font-bold border border-gray-200 bg-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+          >
+            순위표
+          </button>
+        </div>
         <button
           onClick={handleShare}
-          className="px-8 py-3 rounded-xl text-sm font-bold border border-gray-200 bg-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+          className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-1.5 transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+          style={{ background: 'linear-gradient(135deg, #F29199, #F2BDC1)' }}
         >
-          공유하기
-        </button>
-        <button
-          onClick={onLeaderboard}
-          className="px-8 py-3 rounded-xl text-sm font-bold border border-gray-200 bg-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-        >
-          순위표
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+          친구에게 공유하기
         </button>
       </div>
 

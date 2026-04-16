@@ -13,6 +13,6 @@ export function getGridSize(level: number): number {
 /** 레벨에 따른 색상 차이 (레벨 높을수록 작아짐: 30 → 5) */
 export function getDelta(level: number): number {
   const min = 5;
-  const max = 30;
+  const max = 20;
   return Math.max(min, Math.round(max - (level - 1) * ((max - min) / (MAX_LEVEL - 1))));
 }

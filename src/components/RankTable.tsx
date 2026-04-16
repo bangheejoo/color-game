@@ -1,6 +1,4 @@
 import type { RankEntry, LeaderboardTab } from '../types';
-import { buildRankShareMessage, shareOrCopy } from '../utils/shareUtils';
-import { useState } from 'react';
 
 interface RankTableProps {
   entries: RankEntry[];
@@ -12,20 +10,9 @@ interface RankTableProps {
 const MEDAL = ['🥇', '🥈', '🥉'];
 
 export default function RankTable({ entries, tab, loading, error }: RankTableProps) {
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-
-  const handleShare = async (entry: RankEntry, rank: number) => {
-    const msg = buildRankShareMessage(rank, entry.nickname, entry.score, entry.maxCombo);
-    const result = await shareOrCopy(msg);
-    if (result === 'copied') {
-      setCopiedIdx(rank);
-      setTimeout(() => setCopiedIdx(null), 1500);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="w-full bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-400">
+      <div className="w-full bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-400 text-sm">
         불러오는 중…
       </div>
     );
@@ -33,7 +20,7 @@ export default function RankTable({ entries, tab, loading, error }: RankTablePro
 
   if (error) {
     return (
-      <div className="w-full bg-white border border-gray-200 rounded-xl p-6 text-center text-red-400">
+      <div className="w-full bg-white border border-gray-200 rounded-xl p-6 text-center text-red-400 text-sm">
         {error}
       </div>
     );
@@ -41,26 +28,27 @@ export default function RankTable({ entries, tab, loading, error }: RankTablePro
 
   if (entries.length === 0) {
     return (
-      <div className="w-full bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-400">
-        아직 기록이 없습니다
+      <div className="w-full bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-400 text-sm">
+        아직 기록이 없어요 😭<br />가장 먼저 기록을 남겨볼까요?
       </div>
     );
   }
 
   return (
     <div className="w-full bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-50">
-            <th className="py-2 px-3 text-xs font-bold uppercase tracking-widest text-gray-400 text-center">#</th>
-            <th className="py-2 px-3 text-xs font-bold uppercase tracking-widest text-gray-400 text-left">닉네임</th>
-            {tab === 'today' ? (
-              <th className="py-2 px-3 text-xs font-bold uppercase tracking-widest text-gray-400 text-right">점수</th>
-            ) : (
-              <th className="py-2 px-3 text-xs font-bold uppercase tracking-widest text-gray-400 text-right">콤보</th>
-            )}
-            <th className="py-2 px-3 text-xs font-bold uppercase tracking-widest text-gray-400 text-right">레벨</th>
-            <th className="py-2 px-3 w-8" />
+            {/* # — 고정 너비 */}
+            <th className="py-2 px-2 text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 text-center w-8">#</th>
+            {/* 닉네임 — 남은 공간 */}
+            <th className="py-2 px-2 text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 text-left">닉네임</th>
+            {/* 점수 or 콤보 — 고정 너비 */}
+            <th className="py-2 px-2 text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 text-right w-20">
+              {tab === 'combo' ? '콤보' : '점수'}
+            </th>
+            {/* 레벨 — 고정 너비 */}
+            <th className="py-2 px-2 text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 text-right w-14">레벨</th>
           </tr>
         </thead>
         <tbody>
@@ -68,31 +56,35 @@ export default function RankTable({ entries, tab, loading, error }: RankTablePro
             const rank = i + 1;
             return (
               <tr key={entry.id ?? i} className="border-t border-gray-100">
-                <td className="py-2 px-3 font-bold text-center">
+                {/* 순위 */}
+                <td className="py-2.5 px-2 font-bold text-center text-sm w-8">
                   {rank <= 3 ? MEDAL[rank - 1] : rank}
                 </td>
-                <td className="py-2 px-3">
-                  <span className="font-medium">{entry.nickname}</span>
-                  {entry.isPerfect && (
-                    <span className="ml-1.5 text-xs bg-[#F2D7D0] text-[#0D0D0D] font-bold px-1.5 py-0.5 rounded-full">
-                      PERFECT
-                    </span>
+
+                {/* 닉네임 + PERFECT 뱃지 (아래 줄로) */}
+                <td className="py-2.5 px-2 min-w-0">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-semibold text-sm truncate">{entry.nickname}</span>
+                    {entry.isPerfect && (
+                      <span className="text-[0.6rem] bg-[#F2D7D0] text-[#0D0D0D] font-bold px-1.5 py-0.5 rounded-full self-start leading-tight whitespace-nowrap">
+                        ✨ PERFECT
+                      </span>
+                    )}
+                  </div>
+                </td>
+
+                {/* 점수 or 콤보 */}
+                <td className="py-2.5 px-2 text-right w-20">
+                  {tab === 'combo' ? (
+                    <span className="font-extrabold text-sm text-orange-500 tabular-nums">{entry.maxCombo}x 🔥</span>
+                  ) : (
+                    <span className="font-extrabold text-sm tabular-nums">{entry.score.toLocaleString()}</span>
                   )}
                 </td>
-                {tab === 'today' ? (
-                  <td className="py-2 px-3 font-extrabold text-right">{entry.score.toLocaleString()}</td>
-                ) : (
-                  <td className="py-2 px-3 font-extrabold text-right text-orange-500">{entry.maxCombo}x 🔥</td>
-                )}
-                <td className="py-2 px-3 text-gray-400 text-right text-xs">Lv.{entry.levelReached}</td>
-                <td className="py-2 px-3 text-center">
-                  <button
-                    onClick={() => handleShare(entry, rank)}
-                    className="text-gray-400 hover:text-gray-700 transition-colors text-base"
-                    title="공유"
-                  >
-                    {copiedIdx === rank ? '✓' : '↗'}
-                  </button>
+
+                {/* 레벨 */}
+                <td className="py-2.5 px-2 text-right text-gray-400 text-xs w-14 whitespace-nowrap">
+                  Lv.{entry.levelReached}
                 </td>
               </tr>
             );
