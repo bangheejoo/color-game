@@ -5,19 +5,12 @@ const GAME_URL = 'https://bangheejoo.github.io/color-game/';
 /** 완료 화면 공유 메시지 생성 */
 export function buildShareMessage(result: GameResult): string {
   const perfect = result.isPerfect ? '\n🎯 퍼펙트 클리어!' : '';
-  return `나는 컬러게임에서 ${result.score.toLocaleString()}점!\n
-최고 콤보 ${result.maxCombo} 🔥${perfect}\n
-너는 어디까지 갈 수 있어?\n
-${GAME_URL}`;
+  return `나는 컬러게임에서 ${result.score.toLocaleString()}점!\n최고 콤보 ${result.maxCombo} 🔥${perfect}\n너는 어디까지 갈 수 있어?\n${GAME_URL}`;
 }
 
 /** 순위표 공유 메시지 생성 */
 export function buildRankShareMessage(rank: number, nickname: string, score: number, combo: number): string {
-  return `[컬러게임 순위표]\n
-🏆 ${rank}위 ${nickname}\n
-점수: ${score.toLocaleString()}점 | 최고 콤보: ${combo} 🔥\n
-너도 도전해봐!\n
-${GAME_URL}`;
+  return `[컬러게임 순위표]\n🏆 ${rank}위 ${nickname}\n점수: ${score.toLocaleString()}점 | 최고 콤보: ${combo} 🔥\n너도 도전해봐!\n${GAME_URL}`;
 }
 
 /** 클립보드 복사 */

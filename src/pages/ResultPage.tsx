@@ -40,7 +40,7 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
 
   const handleShare = async () => {
     await shareOrCopy(shareText);
-    showToast('링크가 복사됐어요❤️');
+    showToast('공유됐어요❤️');
   };
 
   return (
