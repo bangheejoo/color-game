@@ -34,8 +34,8 @@ export default function ComboDisplay({ combo, triggerKey }: ComboDisplayProps) {
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 animate-combo-pop"
     >
       <div
-        className="flex flex-col items-center gap-0.5 px-5 py-3 rounded-2xl shadow-xl"
-        style={{ background: 'white', opacity: 0.7, border: `2.5px solid ${color}` }}
+        className="flex flex-col items-center gap-0.5 px-10 py-10 rounded-2xl shadow-xl"
+        style={{ background: 'white', opacity: 0.85, border: `2.5px solid ${color}` }}
       >
         <span className="text-2xl leading-none">{emoji}</span>
         <span
