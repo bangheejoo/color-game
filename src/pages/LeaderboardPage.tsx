@@ -32,7 +32,7 @@ export default function LeaderboardPage({ onBack, myResult }: LeaderboardPagePro
   const handleShare = async () => {
     if (!myResult) return;
     const msg = buildShareMessage(myResult);
-    const res = await shareOrCopy(msg);
+    await shareOrCopy(msg);
     showToast('링크가 복사됐어요❤️');
   };
 

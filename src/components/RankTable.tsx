@@ -94,7 +94,7 @@ export default function RankTable({ entries, tab, loading, error }: RankTablePro
                     <span className="font-semibold text-sm truncate">{entry.nickname}</span>
                     {entry.isPerfect && (
                       <span className="text-[0.6rem] bg-[#F2D7D0] text-[#0D0D0D] font-bold px-1.5 py-0.5 rounded-full shrink-0 leading-tight whitespace-nowrap">
-                        ✨ PERFECT
+                        ✨
                       </span>
                     )}
                   </div>
