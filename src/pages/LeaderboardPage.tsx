@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import RankTable from '../components/RankTable';
 import { useLeaderboard } from '../hooks/useLeaderboard';
-import { buildShareMessage, shareOrCopy } from '../utils/shareUtils';
+import { buildRankShareMessage, shareOrCopy } from '../utils/shareUtils';
 import type { LeaderboardTab, GameResult } from '../types';
 
 interface LeaderboardPageProps {
@@ -31,7 +31,12 @@ export default function LeaderboardPage({ onBack, myResult }: LeaderboardPagePro
 
   const handleShare = async () => {
     if (!myResult) return;
-    const msg = buildShareMessage(myResult);
+    // 현재 탭 순위에서 내 점수와 일치하는 항목의 순위 찾기
+    const rankIndex = currentEntries.findIndex(e => e.score === myResult.score && e.maxCombo === myResult.maxCombo);
+    const rank = rankIndex >= 0 ? rankIndex + 1 : null;
+    const msg = rank
+      ? buildRankShareMessage(rank, myResult.score, myResult.maxCombo)
+      : buildRankShareMessage(null, myResult.score, myResult.maxCombo);
     await shareOrCopy(msg);
     showToast('공유됐어요❤️');
   };

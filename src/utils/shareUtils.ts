@@ -9,8 +9,9 @@ export function buildShareMessage(result: GameResult): string {
 }
 
 /** 순위표 공유 메시지 생성 */
-export function buildRankShareMessage(rank: number, nickname: string, score: number, combo: number): string {
-  return `[컬러게임 순위표]\n🏆 ${rank}위 ${nickname}\n점수: ${score.toLocaleString()}점 | 최고 콤보: ${combo} 🔥\n너도 도전해봐!\n${GAME_URL}`;
+export function buildRankShareMessage(rank: number | null, score: number, combo: number): string {
+  const rankLine = rank ? `🏆 ${rank}위로 순위표에 올랐어!\n` : '';
+  return `[컬러게임 순위표]\n${rankLine}점수: ${score.toLocaleString()}점 | 최고 콤보: ${combo} 🔥\n너도 도전해봐!\n${GAME_URL}`;
 }
 
 /** 클립보드 복사 */
