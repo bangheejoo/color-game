@@ -49,7 +49,7 @@ export function useGame({ onGameEnd }: UseGameOptions) {
       score: s.score,
       level: s.level,
       maxCombo: s.maxCombo,
-      isPerfect: s.isPerfect,
+      isPerfect: false, // 45레벨 완주하지 않으면 퍼펙트 불가
       phase: 'timeout',
     });
     setState(s => ({ ...s, phase: 'timeout' }));

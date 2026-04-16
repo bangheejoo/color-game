@@ -4,14 +4,6 @@
       "collectionGroup": "rankings",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "date",  "order": "ASCENDING"  },
-        { "fieldPath": "score", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "rankings",
-      "queryScope": "COLLECTION",
-      "fields": [
         { "fieldPath": "maxCombo", "order": "DESCENDING" },
         { "fieldPath": "score",    "order": "DESCENDING" }
       ]

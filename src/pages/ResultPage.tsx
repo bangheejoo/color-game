@@ -15,29 +15,48 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
   const [nickname, setNickname] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [shareMsg, setShareMsg] = useState('');
+  const [toast, setToast] = useState<{ msg: string; leaving: boolean } | null>(null);
 
   const isCleared = result.phase === 'cleared';
   const shareText = buildShareMessage(result);
+
+  // 토스트 표시
+  const showToast = (msg: string) => {
+    setToast({ msg, leaving: false });
+    setTimeout(() => setToast(t => t ? { ...t, leaving: true } : null), 2000);
+    setTimeout(() => setToast(null), 2350);
+  };
 
   const handleSave = async () => {
     if (!nickname.trim()) return;
     setSaving(true);
     const ok = await saveScore(nickname, result.score, result.level, result.maxCombo, result.isPerfect);
     setSaving(false);
-    if (ok) setSaved(true);
+    if (ok) {
+      setSaved(true);
+      showToast('저장되었습니다 ✓');
+    }
   };
 
   const handleShare = async () => {
-    const res = await shareOrCopy(shareText);
-    if (res === 'copied') {
-      setShareMsg('링크가 복사됐어요❤️ 친구에게 공유해 보세요!');
-      setTimeout(() => setShareMsg(''), 2000);
-    }
+    await shareOrCopy(shareText);
+    showToast('링크가 복사됐어요❤️');
   };
 
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-[460px] text-center animate-fade-in">
+
+      {/* 토스트 */}
+      {toast && (
+        <div
+          className={`fixed bottom-8 left-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-bold shadow-lg pointer-events-none
+            ${toast.leaving ? 'animate-toast-out' : 'animate-toast-in'}`}
+          style={{ background: '#CEF2E8', color: '#0D0D0D' }}
+        >
+          {toast.msg}
+        </div>
+      )}
+
       <span
         className="inline-block text-[0.68rem] font-bold uppercase tracking-widest px-3 py-1 rounded-full"
         style={{ background: '#F2D7D0' }}
@@ -45,9 +64,14 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
         Result
       </span>
 
-      {/* 타이틀 */}
-      <h1 className="text-[clamp(1.9rem,6vw,2.8rem)] font-extrabold tracking-tight">
-        {isCleared ? '🎉 CLEAR!' : '⏰ TIME OVER'}
+      {/* 타이틀 — 결과에 따라 다른 애니메이션 */}
+      <h1
+        key={result.phase}
+        className={`text-[clamp(1.9rem,6vw,2.8rem)] tracking-tight ${
+          isCleared ? 'animate-result-clear' : 'animate-result-timeover'
+        }`}
+      >
+        {isCleared ? '🎉 대단해요' : '⏰ 아쉬워요'}
       </h1>
 
       {/* 퍼펙트 뱃지 */}
@@ -64,8 +88,8 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
 
       <p className="text-gray-500 text-sm font-semibold">
         {isCleared
-          ? `${MAX_LEVEL}레벨을 모두 완료했습니다!`
-          : `${result.level}레벨에서 멈췄어요! 다시 도전해볼까요?`}
+          ? `${MAX_LEVEL}레벨을 모두 완료했습니다😍`
+          : `${MAX_LEVEL-result.level}레벨이 남았어요😭 다시 도전해볼까요?`}
       </p>
 
       {/* 결과 카드 */}
@@ -76,11 +100,11 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
         <ResultRow label="최고 콤보" value={`${result.maxCombo}🔥`} />
       </div>
 
-      {/* 닉네임 저장 (항상 표시) */}
+      {/* 닉네임 저장 */}
       <div className="flex flex-col gap-2 items-center w-full">
         {!saved ? (
           <>
-            <p className="text-xs text-gray-400">닉네임을 입력하고 기록을 저장해 보세요</p>
+            <p className="text-xs text-gray-400">내 기록을 저장하고 공유해 보세요</p>
             <div className="flex gap-2 w-full">
               <input
                 type="text"
@@ -91,22 +115,36 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
                 onKeyDown={e => e.key === 'Enter' && handleSave()}
                 className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#F29199] transition-colors"
               />
+              {/* 저장 아이콘 버튼 */}
               <button
                 onClick={handleSave}
                 disabled={saving || !nickname.trim()}
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-40 transition-colors"
+                className="w-11 h-11 flex items-center justify-center rounded-xl text-white disabled:opacity-40 transition-colors shrink-0"
                 style={{ background: '#0D0D0D' }}
+                title="저장"
               >
-                {saving ? '저장 중…' : '저장'}
+                {saving ? (
+                  /* 로딩 스피너 */
+                  <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                  </svg>
+                ) : (
+                  /* 저장(플로피디스크) 아이콘 */
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                  </svg>
+                )}
               </button>
             </div>
           </>
         ) : (
-          <p className="text-sm font-semibold text-emerald-600">✓ 기록이 저장되었습니다!</p>
+          <p className="text-sm font-semibold text-gray-400">기록이 저장됐어요!</p>
         )}
       </div>
 
-      {/* 버튼 — 2행 그리드: 다시하기+순위표 / 공유 풀너비 */}
+      {/* 버튼 */}
       <div className="flex flex-col gap-2 w-full">
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -120,7 +158,7 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
             onClick={onLeaderboard}
             className="py-3 rounded-xl text-sm font-bold border border-gray-200 bg-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
           >
-            순위표
+            순위보기
           </button>
         </div>
         <button
@@ -136,10 +174,6 @@ export default function ResultPage({ result, onRestart, onLeaderboard }: ResultP
           친구에게 공유하기
         </button>
       </div>
-
-      {shareMsg && (
-        <p className="text-xs text-emerald-600 font-semibold">{shareMsg}</p>
-      )}
     </div>
   );
 }

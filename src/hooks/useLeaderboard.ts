@@ -22,7 +22,7 @@ export function useLeaderboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** 종합 순위 (전체 기간 점수 Top 20) */
+  /** 종합 순위 (전체 기간 점수 Top 10) */
   const fetchOverallRanks = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -30,7 +30,7 @@ export function useLeaderboard() {
       const q = query(
         collection(db, COLLECTION),
         orderBy('score', 'desc'),
-        limit(20),
+        limit(10),
       );
       const snap = await getDocs(q);
       setOverallRanks(
@@ -55,7 +55,7 @@ export function useLeaderboard() {
     }
   }, []);
 
-  /** 오늘의 순위 (날짜별 점수 Top 20) */
+  /** 오늘의 순위 (오늘 날짜 기록 중 점수 Top 20) */
   const fetchTodayRanks = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -63,28 +63,30 @@ export function useLeaderboard() {
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
 
+      // Firestore는 inequality filter 필드를 첫 번째 orderBy로 강제 →
+      // date 기준으로 오늘 데이터를 가져온 뒤 클라이언트에서 점수순 정렬
       const q = query(
         collection(db, COLLECTION),
         where('date', '>=', Timestamp.fromDate(todayStart)),
         orderBy('date', 'asc'),
-        orderBy('score', 'desc'),
-        limit(20),
+        limit(200), // 오늘치 전체를 가져와 클라이언트 정렬
       );
       const snap = await getDocs(q);
-      setTodayRanks(
-        snap.docs.map(doc => {
-          const d = doc.data();
-          return {
-            id: doc.id,
-            nickname: d.nickname,
-            score: d.score,
-            levelReached: d.levelReached,
-            maxCombo: d.maxCombo ?? 0,
-            isPerfect: d.isPerfect ?? false,
-            date: toDate(d.date),
-          };
-        }),
-      );
+      const all = snap.docs.map(doc => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          nickname: d.nickname,
+          score: d.score,
+          levelReached: d.levelReached,
+          maxCombo: d.maxCombo ?? 0,
+          isPerfect: d.isPerfect ?? false,
+          date: toDate(d.date),
+        };
+      });
+      // 점수 내림차순 정렬 후 상위 10개
+      all.sort((a, b) => b.score - a.score);
+      setTodayRanks(all.slice(0, 10));
     } catch (e) {
       console.error('오늘의 순위 로드 실패:', e);
       setError('순위를 불러올 수 없어요');
@@ -93,7 +95,7 @@ export function useLeaderboard() {
     }
   }, []);
 
-  /** 최고 콤보 순위 (콤보 Top 20) */
+  /** 최고 콤보 순위 (콤보 Top 10) */
   const fetchComboRanks = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -102,7 +104,7 @@ export function useLeaderboard() {
         collection(db, COLLECTION),
         orderBy('maxCombo', 'desc'),
         orderBy('score', 'desc'),
-        limit(20),
+        limit(10),
       );
       const snap = await getDocs(q);
       setComboRanks(

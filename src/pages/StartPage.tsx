@@ -15,7 +15,7 @@ export default function StartPage({ onStart, onLeaderboard }: StartPageProps) {
 
       <h1 className="text-[clamp(1.9rem,6vw,2.8rem)] font-extrabold tracking-tight leading-snug">
         다른 색을<br />
-        <span style={{ color: '#F29199' }}>찾아라</span>
+        <span style={{ color: '#F29199' }}>찾아라🔎</span>
       </h1>
 
       <p className="text-gray-500 text-sm font-semibold max-w-[280px] leading-relaxed">
@@ -40,13 +40,13 @@ export default function StartPage({ onStart, onLeaderboard }: StartPageProps) {
           className="px-8 py-3 rounded-xl text-[0.95rem] font-bold text-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
           style={{ background: '#0D0D0D' }}
         >
-          게임 시작
+          시작하기
         </button>
         <button
           onClick={onLeaderboard}
           className="px-8 py-3 rounded-xl text-[0.95rem] font-bold border border-gray-200 bg-white transition-transform hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
         >
-          순위표
+          순위보기
         </button>
       </div>
     </div>

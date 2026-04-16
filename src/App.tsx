@@ -36,7 +36,10 @@ export default function App() {
       )}
 
       {screen === 'leaderboard' && (
-        <LeaderboardPage onBack={() => setScreen('start')} />
+        <LeaderboardPage
+          onBack={() => setScreen('start')}
+          myResult={result}
+        />
       )}
     </main>
   );

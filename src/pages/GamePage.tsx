@@ -14,6 +14,7 @@ interface GamePageProps {
 export default function GamePage({ onGameEnd }: GamePageProps) {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [tileDisabled, setTileDisabled] = useState(false);
+  const [shakeKey, setShakeKey] = useState(0);
 
   const { state, startGame, onCorrect, onWrong } = useGame({ onGameEnd });
 
@@ -37,14 +38,13 @@ export default function GamePage({ onGameEnd }: GamePageProps) {
   const handleWrong = () => {
     if (tileDisabled) return;
     setFeedback('wrong');
+    setShakeKey(k => k + 1);
     onWrong();
-    setTimeout(() => setFeedback(null), 400);
+    setTimeout(() => setFeedback(null), 450);
   };
 
   return (
-    <div
-      className={`flex flex-col items-center gap-3 w-full max-w-[460px] animate-fade-in ${state.shaking ? 'animate-shake' : ''}`}
-    >
+    <div className="flex flex-col items-center gap-3 w-full max-w-[460px] animate-fade-in">
       <HUD
         level={state.level}
         score={state.score}
@@ -54,7 +54,7 @@ export default function GamePage({ onGameEnd }: GamePageProps) {
 
       <ProgressBar level={state.level} />
 
-      <div className="relative w-full">
+      <div key={shakeKey} className={`relative w-full ${shakeKey > 0 ? 'animate-shake' : ''}`}>
         <TileGrid
           tiles={state.tiles}
           gridSize={state.gridSize}
